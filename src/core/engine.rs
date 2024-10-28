@@ -127,9 +127,9 @@ mod tests {
 
         let mut enima_m3 = get_enigma();
 
-        const len: usize = 2000;
+        const LEN: usize = 2000;
         let mut answer = Vec::new();
-        for i in 0..len {
+        for _ in 0..LEN {
             answer.push(enima_m3.encode('A'));
         }
 
@@ -140,6 +140,6 @@ mod tests {
             answer_backwards.push(enigma_m3_backwards.encode(x));
         }
 
-        assert_eq!(vec![EnigmaAlphabet::A; len], answer_backwards);
+        assert_eq!(vec![EnigmaAlphabet::A; LEN], answer_backwards);
     }
 }
