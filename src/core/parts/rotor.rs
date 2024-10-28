@@ -1,26 +1,65 @@
-use std::collections::HashSet;
-
+use super::wiring::Wiring;
 use crate::core::alphabet::EnigmaAlphabet;
+use crate::core::decoder::Decoder;
 use crate::core::encoder::Encoder;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Rotor {
     position: EnigmaAlphabet,
-    wiring: [EnigmaAlphabet; 26],
+    turnover: EnigmaAlphabet,
+    wiring: Wiring,
 }
 
 impl Rotor {
-    pub fn new(position: EnigmaAlphabet, wiring: [EnigmaAlphabet; 26]) -> Self {
-        let set: HashSet<EnigmaAlphabet> = wiring.iter().cloned().collect();
-        assert!(set.len() == 26, "Wiring must contain 26 unique letters");
-        Self { position, wiring }
+    pub fn new(
+        position: impl Into<EnigmaAlphabet>,
+        trunover: impl Into<EnigmaAlphabet>,
+        wiring: impl Into<Wiring>,
+    ) -> Self {
+        let position = position.into();
+        let turnover = trunover.into();
+        let wiring = wiring.into();
+        Self { position, turnover, wiring }
+    }
+
+    pub fn turn(&mut self) -> bool {
+        self.position = EnigmaAlphabet::from((self.position as u8 + 1) % 26);
+        self.position == self.turnover
     }
 }
 
 impl Encoder for Rotor {
     type Letter = EnigmaAlphabet;
 
-    fn encode(&self, letter: EnigmaAlphabet) -> EnigmaAlphabet {
-        EnigmaAlphabet::from((self.wiring[letter as usize] as u8 + self.position as u8 + 1) % 26)
+    fn encode<I>(&self, input: I) -> Self::Letter
+    where
+        I: Into<Self::Letter>,
+    {
+        let input = input.into();
+        Self::Letter::from((self.wiring.wire(input) as u8 + self.position as u8) % 26)
+    }
+}
+
+impl Decoder for Rotor {
+    type Letter = EnigmaAlphabet;
+
+    fn decode<I>(&self, input: I) -> Self::Letter
+    where
+        I: Into<Self::Letter>,
+    {
+        let input = input.into();
+        Self::Letter::from((self.wiring.unwire(input) as u8 + self.position as u8) % 26)
+    }
+}
+
+impl<A, B, C> From<(A, B, C)> for Rotor
+where
+    A: Into<EnigmaAlphabet>,
+    B: Into<EnigmaAlphabet>,
+    C: Into<Wiring>,
+{
+    fn from(value: (A, B, C)) -> Self {
+        Self::new(value.0, value.1, value.2)
     }
 }
 
@@ -29,14 +68,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_plugboard() {
+    fn test_rotor() {
         use EnigmaAlphabet::*;
-        let plugboard = Rotor::new(
+        let rotor = Rotor::new(
+            A,
             A,
             [B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A],
         );
-        let encoded = plugboard.encode(A);
-        assert_eq!(encoded, C);
+        let encoded = rotor.encode(A);
+        assert_eq!(encoded, B);
     }
 
     #[test]
@@ -45,7 +85,23 @@ mod tests {
         use EnigmaAlphabet::*;
         let _ = Rotor::new(
             A,
+            A,
             [A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, A, A],
         );
+    }
+
+    #[test]
+    fn test_rotor_from_tuple() {
+        use EnigmaAlphabet::*;
+        let rotor: Rotor = (
+            'A',
+            'A',
+            [
+                0u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+                23, 24, 25,
+            ],
+        )
+            .into();
+        assert_eq!(rotor.position, A);
     }
 }

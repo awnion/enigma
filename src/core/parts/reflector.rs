@@ -1,16 +1,14 @@
-use std::collections::HashSet;
-
+use super::wiring::Wiring;
 use crate::core::alphabet::EnigmaAlphabet;
 use crate::core::encoder::Encoder;
 
 pub struct Reflector {
-    wiring: [EnigmaAlphabet; 26],
+    wiring: Wiring,
 }
 
 impl Reflector {
-    pub fn new(wiring: [EnigmaAlphabet; 26]) -> Self {
-        let set: HashSet<EnigmaAlphabet> = wiring.iter().cloned().collect();
-        assert!(set.len() == 26, "Wiring must contain 26 unique letters");
+    pub fn new(wiring: impl Into<Wiring>) -> Self {
+        let wiring = wiring.into();
         Self { wiring }
     }
 }
@@ -18,8 +16,17 @@ impl Reflector {
 impl Encoder for Reflector {
     type Letter = EnigmaAlphabet;
 
-    fn encode(&self, letter: EnigmaAlphabet) -> EnigmaAlphabet {
-        EnigmaAlphabet::from(self.wiring[letter as usize] as u8)
+    fn encode<I>(&self, input: I) -> Self::Letter
+    where
+        I: Into<Self::Letter>,
+    {
+        self.wiring.wire(input)
+    }
+}
+
+impl From<&str> for Reflector {
+    fn from(wiring: &str) -> Self {
+        Self::new(wiring)
     }
 }
 
@@ -30,11 +37,18 @@ mod tests {
     #[test]
     fn test_reflector() {
         use EnigmaAlphabet::*;
-        let plugboard = Reflector::new([
+        let reflector = Reflector::new([
             B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A,
         ]);
-        let encoded = plugboard.encode(A);
+        let encoded = reflector.encode(A);
         assert_eq!(encoded, B);
+    }
+
+    #[test]
+    fn test_reflector_from_str() {
+        let reflector: Reflector = "YXWVUTSRQPONMLKJIHGFEDCBAZ".into();
+        let encoded = reflector.encode(EnigmaAlphabet::A);
+        assert_eq!(encoded, 'Y'.into());
     }
 
     #[test]

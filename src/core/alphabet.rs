@@ -79,7 +79,16 @@ impl From<u8> for EnigmaAlphabet {
 impl From<u32> for EnigmaAlphabet {
     fn from(value: u32) -> Self {
         match value {
-            0..=25 => value.into(),
+            0..=25 => (value as u8).into(),
+            _ => panic!("Invalid letter value: {}", value),
+        }
+    }
+}
+
+impl From<i32> for EnigmaAlphabet {
+    fn from(value: i32) -> Self {
+        match value {
+            0..=25 => (value as u8).into(),
             _ => panic!("Invalid letter value: {}", value),
         }
     }

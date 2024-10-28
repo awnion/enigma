@@ -26,7 +26,11 @@ impl<const N: usize> Plugboard<N> {
 impl<const N: usize> Encoder for Plugboard<N> {
     type Letter = EnigmaAlphabet;
 
-    fn encode(&self, input: Self::Letter) -> Self::Letter {
+    fn encode<I>(&self, input: I) -> Self::Letter
+    where
+        I: Into<Self::Letter>,
+    {
+        let input = input.into();
         for (a, b) in self.pairs.iter() {
             if input == *a {
                 return *b;
