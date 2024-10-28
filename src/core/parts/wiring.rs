@@ -5,23 +5,29 @@ use crate::core::alphabet::EnigmaAlphabet;
 #[derive(Debug, Clone, Copy)]
 pub struct Wiring {
     outputs: [EnigmaAlphabet; 26],
+    inverts: [EnigmaAlphabet; 26],
 }
 
 impl Wiring {
     pub fn new(outputs: [EnigmaAlphabet; 26]) -> Self {
         let set: HashSet<EnigmaAlphabet> = outputs.into_iter().collect();
         assert!(set.len() == 26, "Wiring must contain 26 unique letters");
-        Self { outputs }
+
+        let mut inverts = [EnigmaAlphabet::A; 26];
+        for i in 0u8..26 {
+            let l: usize = u8::from(outputs[i as usize]).into();
+            inverts[l] = i.into();
+        }
+
+        Self { outputs, inverts }
     }
 
-    pub(crate) fn wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
+    pub(crate) fn ab_wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
         self.outputs[input.into() as usize]
     }
 
-    pub(crate) fn unwire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
-        // TODO: optimize this
-        let input = input.into();
-        (0u8..26).find(|&i| self.wire(i) == input).expect("Letter not found in wiring").into()
+    pub(crate) fn ba_wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
+        self.inverts[input.into() as usize]
     }
 }
 

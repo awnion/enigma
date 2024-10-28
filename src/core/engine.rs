@@ -14,6 +14,7 @@ pub struct Enigma<const N: usize> {
 impl<const N: usize> Enigma<N> {
     pub fn new<R1, R2, P>(rotors: [R1; 3], reflector: R2, plugboard: P) -> Self
     where
+        // TODO: Copy is not necessary here
         R1: Into<Rotor> + Copy,
         R2: Into<Reflector>,
         P: Into<Plugboard<N>>,
@@ -28,16 +29,33 @@ impl<const N: usize> Enigma<N> {
     where
         I: Into<EnigmaAlphabet>,
     {
-        let input = self.plugboard.encode(input);
-        let input = self.rotors[2].encode(input);
-        let input = self.rotors[1].encode(input);
-        let input = self.rotors[0].encode(input);
-        let input = self.reflector.encode(input);
+        let input = input.into();
+        let x = self.plugboard.encode(input);
+        let x = self.rotors[2].encode(x);
+        let x = self.rotors[1].encode(x);
+        let x = self.rotors[0].encode(x);
+        let x = self.reflector.encode(x);
         // backwards
-        let input = self.rotors[0].decode(input);
-        let input = self.rotors[1].decode(input);
-        let input = self.rotors[2].decode(input);
-        let input = self.plugboard.encode(input);
+        let x = self.rotors[0].decode(x);
+        let x = self.rotors[1].decode(x);
+        let x = self.rotors[2].decode(x);
+        let x = self.plugboard.encode(x);
+
+        assert_eq!(
+            input,
+            {
+                let y = self.plugboard.encode(x);
+                let y = self.rotors[2].encode(y);
+                let y = self.rotors[1].encode(y);
+                let y = self.rotors[0].encode(y);
+                let y = self.reflector.encode(y);
+                let y = self.rotors[0].decode(y);
+                let y = self.rotors[1].decode(y);
+                let y = self.rotors[2].decode(y);
+                self.plugboard.encode(y)
+            },
+            "encode fail"
+        );
 
         // turn rotors on press
         for i in 0..3 {
@@ -46,7 +64,7 @@ impl<const N: usize> Enigma<N> {
             }
         }
 
-        input
+        x
     }
 }
 
@@ -91,5 +109,39 @@ mod tests {
         let input = 'P';
         let output = enigma_m3.encode(input);
         assert_eq!(output, 'G'.into());
+    }
+
+    #[test]
+    fn enigma_encode_multiple_steps() {
+        let get_enigma = || {
+            Enigma::new(
+                [
+                    Rotor::new(0, 'R', ROTOR_I),
+                    Rotor::new(0, 'F', ROTOR_II),
+                    Rotor::new(0, 'W', ROTOR_III),
+                ],
+                Reflector::new(REFLECTOR_B),
+                Plugboard::new([(EnigmaAlphabet::A, EnigmaAlphabet::B)]),
+            )
+        };
+
+        let mut enima_m3 = get_enigma();
+
+        let mut answer = Vec::new();
+        answer.push(enima_m3.encode('A'));
+        answer.push(enima_m3.encode('A'));
+        answer.push(enima_m3.encode('A'));
+        answer.push(enima_m3.encode('A'));
+        answer.push(enima_m3.encode('A'));
+        answer.push(enima_m3.encode('A'));
+
+        let mut enigma_m3_backwards = get_enigma();
+        let mut answer_backwards = Vec::new();
+
+        for &x in answer.iter() {
+            answer_backwards.push(enigma_m3_backwards.encode(x));
+        }
+
+        assert_eq!(vec![EnigmaAlphabet::A; 6], answer_backwards);
     }
 }

@@ -1,3 +1,5 @@
+use std::ops::Rem;
+
 use super::wiring::Wiring;
 use crate::core::alphabet::EnigmaAlphabet;
 use crate::core::decoder::Decoder;
@@ -35,8 +37,9 @@ impl Encoder for Rotor {
     where
         I: Into<Self::Letter>,
     {
-        let input = input.into();
-        Self::Letter::from((self.wiring.wire(input) as u8 + self.position as u8) % 26)
+        let shift = self.position as u8;
+        let shifted_input = (input.into() as u8 + shift).rem(26);
+        (self.wiring.ab_wire(shifted_input) as u8 + 26 - shift).rem(26).into()
     }
 }
 
@@ -47,8 +50,9 @@ impl Decoder for Rotor {
     where
         I: Into<Self::Letter>,
     {
-        let input = input.into();
-        Self::Letter::from((self.wiring.unwire(input) as u8 + self.position as u8) % 26)
+        let shift = self.position as u8;
+        let shifted_input = (input.into() as u8 + shift).rem(26);
+        (self.wiring.ba_wire(shifted_input) as u8 + 26 - shift).rem(26).into()
     }
 }
 
