@@ -37,6 +37,7 @@ impl<const N: usize> Enigma<N> {
         let input = self.rotors[0].decode(input);
         let input = self.rotors[1].decode(input);
         let input = self.rotors[2].decode(input);
+        let input = self.plugboard.encode(input);
 
         // turn rotors on press
         for i in 0..3 {
