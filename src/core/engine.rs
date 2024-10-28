@@ -64,7 +64,11 @@ mod tests {
         // rotor III: BDFHJLCPRTXVZNYEIWGAKMUSQO
 
         let mut enigma_m3 = Enigma::new(
-            [Rotor::new(0, 25, ROTOR_I), Rotor::new(0, 25, ROTOR_II), Rotor::new(0, 25, ROTOR_III)],
+            [
+                Rotor::new(0, 'R', ROTOR_I),
+                Rotor::new(0, 'F', ROTOR_II),
+                Rotor::new(0, 'W', ROTOR_III),
+            ],
             Reflector::new(REFLECTOR_B),
             Plugboard::<0>::new([]),
         );
@@ -74,7 +78,11 @@ mod tests {
         assert_eq!(output, 'P'.into());
 
         let mut enigma_m3 = Enigma::new(
-            [Rotor::new(0, 25, ROTOR_I), Rotor::new(0, 25, ROTOR_II), Rotor::new(0, 25, ROTOR_III)],
+            [
+                Rotor::new(0, 'R', ROTOR_I),
+                Rotor::new(0, 'F', ROTOR_II),
+                Rotor::new(0, 'W', ROTOR_III),
+            ],
             Reflector::new(REFLECTOR_B),
             Plugboard::<0>::new([]),
         );
