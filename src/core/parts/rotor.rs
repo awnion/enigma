@@ -1,32 +1,48 @@
+use std::collections::HashSet;
 use std::ops::Rem;
+use std::slice::Iter;
 
 use super::wiring::Wiring;
 use crate::core::alphabet::EnigmaAlphabet;
 use crate::core::decoder::Decoder;
 use crate::core::encoder::Encoder;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Rotor {
-    position: EnigmaAlphabet,
-    turnover: EnigmaAlphabet,
     wiring: Wiring,
+    turnover: HashSet<EnigmaAlphabet>,
+    position: EnigmaAlphabet,
 }
 
 impl Rotor {
     pub fn new(
-        position: impl Into<EnigmaAlphabet>,
-        trunover: impl Into<EnigmaAlphabet>,
         wiring: impl Into<Wiring>,
+        trunover: impl IntoIterator<Item = EnigmaAlphabet>,
     ) -> Self {
-        let position = position.into();
-        let turnover = trunover.into();
         let wiring = wiring.into();
-        Self { position, turnover, wiring }
+        let turnover = trunover.into_iter().collect();
+        let position = EnigmaAlphabet::A;
+        Self { wiring, turnover, position }
+    }
+
+    pub fn with_position(
+        wiring: impl Into<Wiring>,
+        trunover: impl IntoIterator<Item = EnigmaAlphabet>,
+        position: impl Into<EnigmaAlphabet>,
+    ) -> Self {
+        let mut rotor = Self::new(wiring, trunover);
+        rotor.set(position);
+        rotor
     }
 
     pub fn turn(&mut self) -> bool {
-        self.position = EnigmaAlphabet::from((self.position as u8 + 1) % 26);
-        self.position == self.turnover
+        self.position = self.position + 1;
+        // self.position = EnigmaAlphabet::from((self.position as u8 + 1) % 26);
+        self.turnover.contains(&self.position)
+    }
+
+    pub fn set(&mut self, position: impl Into<EnigmaAlphabet>) {
+        self.position = position.into();
     }
 }
 
@@ -59,7 +75,7 @@ impl Decoder for Rotor {
 impl<A, B, C> From<(A, B, C)> for Rotor
 where
     A: Into<EnigmaAlphabet>,
-    B: Into<EnigmaAlphabet>,
+    B: IntoIterator<Item = EnigmaAlphabet>,
     C: Into<Wiring>,
 {
     fn from(value: (A, B, C)) -> Self {
@@ -70,13 +86,14 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::engine::Enigma;
 
     #[test]
     fn test_rotor() {
         use EnigmaAlphabet::*;
         let rotor = Rotor::new(
             A,
-            A,
+            [A],
             [B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A],
         );
         let encoded = rotor.encode(A);
@@ -89,7 +106,7 @@ mod tests {
         use EnigmaAlphabet::*;
         let _ = Rotor::new(
             A,
-            A,
+            [A],
             [A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, A, A],
         );
     }
@@ -97,15 +114,14 @@ mod tests {
     #[test]
     fn test_rotor_from_tuple() {
         use EnigmaAlphabet::*;
-        let rotor: Rotor = (
+        let rotor: Rotor = Rotor::new(
             'A',
-            'A',
+            [A],
             [
                 0u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
                 23, 24, 25,
             ],
-        )
-            .into();
+        );
         assert_eq!(rotor.position, A);
     }
 }

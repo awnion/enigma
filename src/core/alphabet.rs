@@ -1,3 +1,8 @@
+use std::ops::Add;
+use std::ops::AddAssign;
+use std::ops::Rem;
+use std::ops::Sub;
+
 /// Alphabet for our Enigma machine
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(u8)]
@@ -30,20 +35,27 @@ pub enum EnigmaAlphabet {
     Z,
 }
 
-impl From<EnigmaAlphabet> for u8 {
-    fn from(value: EnigmaAlphabet) -> Self {
-        value as u8
-    }
+macro_rules! impl_enigma_alphabet_ints {
+    ($($t:ty)*) => ($(
+        impl From<EnigmaAlphabet> for $t {
+            #[inline]
+            fn from(value: EnigmaAlphabet) -> Self {
+                value as $t
+            }
+        }
+    )*)
 }
+
+impl_enigma_alphabet_ints! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 }
 
 impl From<EnigmaAlphabet> for char {
     fn from(value: EnigmaAlphabet) -> Self {
-        (b'A' + value as u8) as char
+        (value as u32 + b'A' as u32) as u8 as char
     }
 }
 
-impl From<u8> for EnigmaAlphabet {
-    fn from(value: u8) -> Self {
+impl From<&u8> for EnigmaAlphabet {
+    fn from(value: &u8) -> Self {
         match value {
             0 => EnigmaAlphabet::A,
             1 => EnigmaAlphabet::B,
@@ -76,10 +88,16 @@ impl From<u8> for EnigmaAlphabet {
     }
 }
 
-impl From<u32> for EnigmaAlphabet {
-    fn from(value: u32) -> Self {
+impl From<u8> for EnigmaAlphabet {
+    fn from(value: u8) -> Self {
+        value.into()
+    }
+}
+
+impl From<&u32> for EnigmaAlphabet {
+    fn from(value: &u32) -> Self {
         match value {
-            0..=25 => (value as u8).into(),
+            0..=25 => value.into(),
             _ => panic!("Invalid letter value: {}", value),
         }
     }
