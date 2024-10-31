@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::ops::Sub;
 
 use super::wiring::Wiring;
 use crate::core::alphabet::EnigmaAlphabet;
@@ -8,6 +9,7 @@ use crate::core::encoder::Encoder;
 #[derive(Debug, Clone)]
 pub struct Rotor {
     wiring: Wiring,
+    ring: u8,
     turnover: HashSet<EnigmaAlphabet>,
     position: EnigmaAlphabet,
 }
@@ -20,7 +22,7 @@ impl Rotor {
         let wiring = wiring.into();
         let turnover = trunover.into_iter().collect();
         let position = 0.into();
-        Self { wiring, turnover, position }
+        Self { wiring, ring: 0u8, turnover, position }
     }
 
     pub fn with_position(
@@ -34,12 +36,17 @@ impl Rotor {
     }
 
     pub fn turn(&mut self) -> bool {
+        let is_turnover = self.turnover.contains(&self.position);
         self.position = self.position + 1;
-        self.turnover.contains(&self.position)
+        is_turnover
     }
 
     pub fn set(&mut self, position: impl Into<EnigmaAlphabet>) {
         self.position = position.into();
+    }
+
+    pub fn set_ring(&mut self, ring: u8) {
+        self.ring = ring;
     }
 }
 
@@ -50,8 +57,17 @@ impl Encoder for Rotor {
     where
         I: Into<Self::Letter>,
     {
-        let shift = self.position.to_u8();
-        self.wiring.ab_wire(input.into() + shift) - shift
+        let shift = self.position.sub(self.ring).to_u8();
+        let input = input.into();
+        let v = self.wiring.left_to_right_wire(input + shift) - shift;
+        // eprintln!(
+        //     "encode {} ({:>2}) -> {} -> {}",
+        //     self.position.to_char(),
+        //     self.position.to_u8(),
+        //     input.to_char(),
+        //     v.to_char()
+        // );
+        v
     }
 }
 
@@ -62,8 +78,17 @@ impl Decoder for Rotor {
     where
         I: Into<Self::Letter>,
     {
-        let shift = self.position.to_u8();
-        self.wiring.ba_wire(input.into() - shift) + shift
+        let shift = self.position.sub(self.ring).to_u8();
+        let input = input.into();
+        let v = self.wiring.right_to_left_wire(input + shift) - shift;
+        // eprintln!(
+        //     "Decode {} ({:>2}) -> {} -> {}",
+        //     self.position.to_char(),
+        //     self.position.to_u8(),
+        //     input.to_char(),
+        //     v.to_char()
+        // );
+        v
     }
 }
 
@@ -85,18 +110,29 @@ mod tests {
     #[test]
     fn test_rotor() {
         let mut rotor = Rotor::new("BCDEFGHIJKLMNOPQRSTUVWXYZA", "A".chars().map(Into::into));
-        let encoded = rotor.encode('A');
-        assert_eq!(encoded, 'B'.into());
+        let encoded = rotor.encode('B');
+        assert_eq!(encoded, 'C'.into());
 
         rotor.turn();
 
-        let encoded = rotor.encode('A');
-        assert_eq!(encoded, 'B'.into());
+        let encoded = rotor.encode('B');
+        assert_eq!(encoded, 'C'.into());
 
         rotor.turn();
 
-        let decoded = rotor.decode('B');
-        assert_eq!(decoded, 'A'.into());
+        let decoded = rotor.decode('A');
+        assert_eq!(decoded, 'Z'.into());
+    }
+
+    #[test]
+    fn test_rotor_i() {
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q".chars().map(Into::into));
+
+        assert_eq!(rotor.decode('B'), 'W'.into());
+
+        rotor.turn();
+
+        assert_eq!(rotor.decode('B'), 'X'.into());
     }
 
     #[test]

@@ -38,6 +38,7 @@ pub const ROTOR_V: (&str, &str) = ("VZBRGITYUPSDNHLXAWMJQOFECK", "Z");
 pub const ROTOR_VI: (&str, &str) = ("JPGVOUMFYQBENHZRDKASXLICTW", "ZM");
 pub const ROTOR_VII: (&str, &str) = ("NZJHGRCXMYSWBOUFAIVLPEKQDT", "ZM");
 pub const ROTOR_VIII: (&str, &str) = ("FKQHTLXOCBJSPDZRAMEWNIUYGV", "ZM");
+pub const UWK_A: &str = "EJMZALYXVBWFCRQUONTSPIKHGD";
 pub const UKW_B: &str = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
 pub const UKW_C: &str = "FVPJIAOYEDRZXWGCTKUQSBNMHL";
 
@@ -59,6 +60,10 @@ pub fn rotor_iv(position: impl Into<EnigmaAlphabet>) -> Rotor {
 
 pub fn rotor_v(position: impl Into<EnigmaAlphabet>) -> Rotor {
     Rotor::with_position(ROTOR_V.0, ROTOR_V.1.chars().map(Into::into), position)
+}
+
+pub fn reflector_a() -> Reflector {
+    Reflector::new(UWK_A)
 }
 
 pub fn reflector_b() -> Reflector {

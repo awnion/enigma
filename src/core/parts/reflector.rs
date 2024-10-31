@@ -10,7 +10,8 @@ impl Reflector {
     pub fn new(wiring: impl Into<Wiring>) -> Self {
         let wiring = wiring.into();
         assert!(
-            ('A'..='Z').all(|x| wiring.ab_wire(wiring.ab_wire(x)) == x.into()),
+            ('A'..='Z')
+                .all(|x| wiring.left_to_right_wire(wiring.right_to_left_wire(x)) == x.into()),
             "reflector should be a mirror (e.i. permutation where cycles are only len 2) "
         );
         Self { wiring }
@@ -24,7 +25,7 @@ impl Encoder for Reflector {
     where
         I: Into<Self::Letter>,
     {
-        self.wiring.ab_wire(input)
+        self.wiring.left_to_right_wire(input)
     }
 }
 
