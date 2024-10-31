@@ -49,16 +49,16 @@ mod tests {
 
     #[test]
     fn test_plugboard() {
-        use EnigmaAlphabet::*;
-        let plugboard = Plugboard::new([(A, B), (C, D)]);
-        let encoded = plugboard.encode(A);
-        assert_eq!(encoded, B);
+        let plugboard = Plugboard::new([(0u8.into(), 1u8.into()), (2.into(), 3.into())]);
+
+        let encoded = plugboard.encode(0);
+        assert_eq!(encoded, 1.into());
     }
 
     #[test]
     #[should_panic]
     fn test_plugboard_duplicate_pair() {
-        use EnigmaAlphabet::*;
-        let _ = Plugboard::new([(A, B), (B, C), (C, D)]);
+        let _ =
+            Plugboard::new([(0u8.into(), 1u8.into()), (1.into(), 2.into()), (2.into(), 3.into())]);
     }
 }

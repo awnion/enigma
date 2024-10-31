@@ -106,7 +106,7 @@ mod tests {
             Enigma::new(
                 reflector_b(),
                 [rotor_i(0), rotor_i(0), rotor_i(0)],
-                Plugboard::new([(EnigmaAlphabet::A, EnigmaAlphabet::B)]),
+                Plugboard::new([(0.into(), 1.into())]),
             )
         };
 
@@ -125,6 +125,6 @@ mod tests {
             answer_backwards.push(enigma_m3_backwards.encode(x));
         }
 
-        assert_eq!(vec![EnigmaAlphabet::A; LEN], answer_backwards);
+        assert_eq!(vec![EnigmaAlphabet::from(0); LEN], answer_backwards);
     }
 }

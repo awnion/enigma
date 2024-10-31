@@ -42,35 +42,23 @@ pub const UKW_B: &str = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
 pub const UKW_C: &str = "FVPJIAOYEDRZXWGCTKUQSBNMHL";
 
 pub fn rotor_i(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_I.1.chars(), ROTOR_I.0)
+    Rotor::with_position(ROTOR_I.0, ROTOR_I.1.chars().map(Into::into), position)
 }
 
 pub fn rotor_ii(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_II.1, ROTOR_II.0)
+    Rotor::with_position(ROTOR_II.0, ROTOR_II.1.chars().map(Into::into), position)
 }
 
 pub fn rotor_iii(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_III.1, ROTOR_III.0)
+    Rotor::with_position(ROTOR_III.0, ROTOR_III.1.chars().map(Into::into), position)
 }
 
 pub fn rotor_iv(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_IV.1, ROTOR_IV.0)
+    Rotor::with_position(ROTOR_IV.0, ROTOR_IV.1.chars().map(Into::into), position)
 }
 
 pub fn rotor_v(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_V.1, ROTOR_V.0)
-}
-
-pub fn rotor_vi(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_VI.1, ROTOR_VI.0)
-}
-
-pub fn rotor_vii(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_VII.1, ROTOR_VII.0)
-}
-
-pub fn rotor_viii(position: impl Into<EnigmaAlphabet>) -> Rotor {
-    Rotor::new(position, ROTOR_VIII.1, ROTOR_VIII.0)
+    Rotor::with_position(ROTOR_V.0, ROTOR_V.1.chars().map(Into::into), position)
 }
 
 pub fn reflector_b() -> Reflector {

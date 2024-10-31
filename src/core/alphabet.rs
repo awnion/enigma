@@ -2,87 +2,55 @@ use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Rem;
 use std::ops::Sub;
+use std::ops::SubAssign;
 
 /// Alphabet for our Enigma machine
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(u8)]
-pub enum EnigmaAlphabet {
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    G,
-    H,
-    I,
-    J,
-    K,
-    L,
-    M,
-    N,
-    O,
-    P,
-    Q,
-    R,
-    S,
-    T,
-    U,
-    V,
-    W,
-    X,
-    Y,
-    Z,
+pub struct EnigmaAlphabet(u8);
+
+impl EnigmaAlphabet {
+    #[inline]
+    pub fn to_u8(&self) -> u8 {
+        self.0
+    }
+
+    #[inline]
+    pub fn to_char(&self) -> char {
+        (self.to_u8() + b'A') as char
+    }
 }
 
-macro_rules! impl_enigma_alphabet_ints {
+macro_rules! into_int_impl {
     ($($t:ty)*) => ($(
         impl From<EnigmaAlphabet> for $t {
             #[inline]
             fn from(value: EnigmaAlphabet) -> Self {
-                value as $t
+                value.0 as $t
             }
         }
     )*)
 }
 
-impl_enigma_alphabet_ints! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 }
+into_int_impl! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 }
 
 impl From<EnigmaAlphabet> for char {
+    #[inline]
     fn from(value: EnigmaAlphabet) -> Self {
-        (value as u32 + b'A' as u32) as u8 as char
+        value.to_char()
+    }
+}
+
+impl From<EnigmaAlphabet> for String {
+    #[inline]
+    fn from(value: EnigmaAlphabet) -> Self {
+        value.to_char().to_string()
     }
 }
 
 impl From<&u8> for EnigmaAlphabet {
     fn from(value: &u8) -> Self {
         match value {
-            0 => EnigmaAlphabet::A,
-            1 => EnigmaAlphabet::B,
-            2 => EnigmaAlphabet::C,
-            3 => EnigmaAlphabet::D,
-            4 => EnigmaAlphabet::E,
-            5 => EnigmaAlphabet::F,
-            6 => EnigmaAlphabet::G,
-            7 => EnigmaAlphabet::H,
-            8 => EnigmaAlphabet::I,
-            9 => EnigmaAlphabet::J,
-            10 => EnigmaAlphabet::K,
-            11 => EnigmaAlphabet::L,
-            12 => EnigmaAlphabet::M,
-            13 => EnigmaAlphabet::N,
-            14 => EnigmaAlphabet::O,
-            15 => EnigmaAlphabet::P,
-            16 => EnigmaAlphabet::Q,
-            17 => EnigmaAlphabet::R,
-            18 => EnigmaAlphabet::S,
-            19 => EnigmaAlphabet::T,
-            20 => EnigmaAlphabet::U,
-            21 => EnigmaAlphabet::V,
-            22 => EnigmaAlphabet::W,
-            23 => EnigmaAlphabet::X,
-            24 => EnigmaAlphabet::Y,
-            25 => EnigmaAlphabet::Z,
+            0..=25 => EnigmaAlphabet(*value),
             _ => panic!("Invalid letter value: {}", value),
         }
     }
@@ -115,8 +83,36 @@ impl From<i32> for EnigmaAlphabet {
 impl From<char> for EnigmaAlphabet {
     fn from(value: char) -> Self {
         match value {
-            'A'..='Z' => EnigmaAlphabet::from(u32::from(value) - b'A' as u32),
+            'A'..='Z' => (value as u8 - b'A').into(),
             _ => panic!("Invalid letter value: {}", value),
         }
+    }
+}
+
+impl Add<u8> for EnigmaAlphabet {
+    type Output = Self;
+
+    fn add(self, rhs: u8) -> Self::Output {
+        self.0.add(rhs).rem(26).into()
+    }
+}
+
+impl AddAssign<u8> for EnigmaAlphabet {
+    fn add_assign(&mut self, rhs: u8) {
+        *self = *self + rhs
+    }
+}
+
+impl Sub<u8> for EnigmaAlphabet {
+    type Output = Self;
+
+    fn sub(self, rhs: u8) -> Self::Output {
+        (self.0 as i32).sub(rhs as i32).rem(26).into()
+    }
+}
+
+impl SubAssign<u8> for EnigmaAlphabet {
+    fn sub_assign(&mut self, rhs: u8) {
+        *self = *self - rhs
     }
 }

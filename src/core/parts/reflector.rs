@@ -37,30 +37,25 @@ impl From<&str> for Reflector {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::historical_machines::enigma_m3::reflector_b;
 
     #[test]
     fn test_reflector() {
-        use EnigmaAlphabet::*;
-        let reflector = Reflector::new([
-            B, A, D, C, F, E, H, G, J, I, L, K, N, M, P, O, R, Q, T, S, V, U, X, W, Z, Y,
-        ]);
-        let encoded = reflector.encode(A);
-        assert_eq!(encoded, B);
+        let reflector = reflector_b();
+        let encoded = reflector.encode('A');
+        assert_eq!(encoded, 'Y'.into());
     }
 
     #[test]
     fn test_reflector_from_str() {
         let reflector: Reflector = "BADCFEHGJILKNMPORQTSVUXWZY".into();
-        let encoded = reflector.encode(EnigmaAlphabet::A);
+        let encoded = reflector.encode(b'A');
         assert_eq!(encoded, 'B'.into());
     }
 
     #[test]
     #[should_panic]
     fn test_reflector_invalid() {
-        use EnigmaAlphabet::*;
-        let _ = Reflector::new([
-            B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, A, A,
-        ]);
+        let _ = Reflector::new("ABCDEFGHIJKLMNOPQRSTUVWXAZ");
     }
 }

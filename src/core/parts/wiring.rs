@@ -13,7 +13,7 @@ impl Wiring {
         let set: HashSet<EnigmaAlphabet> = outputs.into_iter().collect();
         assert!(set.len() == 26, "Wiring must contain 26 unique letters");
 
-        let mut inverts = [EnigmaAlphabet::A; 26];
+        let mut inverts = [0.into(); 26];
         for i in 0u8..26 {
             let l: usize = u8::from(outputs[i as usize]).into();
             inverts[l] = i.into();
@@ -23,17 +23,17 @@ impl Wiring {
     }
 
     pub(crate) fn ab_wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
-        self.outputs[input.into() as usize]
+        self.outputs[usize::from(input.into())]
     }
 
     pub(crate) fn ba_wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
-        self.inverts[input.into() as usize]
+        self.inverts[usize::from(input.into())]
     }
 }
 
 impl<T: Into<EnigmaAlphabet>> From<[T; 26]> for Wiring {
     fn from(outputs: [T; 26]) -> Self {
-        let mut outputs_array = [EnigmaAlphabet::A; 26];
+        let mut outputs_array = [0.into(); 26];
         for (output, output_array) in outputs.into_iter().zip(outputs_array.iter_mut()) {
             *output_array = output.into();
         }
@@ -46,7 +46,7 @@ impl From<&str> for Wiring {
         if s.len() != 26 {
             panic!("Wiring string must contain 26 characters");
         }
-        let mut outputs_array = [EnigmaAlphabet::A; 26];
+        let mut outputs_array = [0.into(); 26];
         for (output, output_array) in s.chars().zip(outputs_array.iter_mut()) {
             *output_array = output.into();
         }
