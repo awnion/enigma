@@ -23,11 +23,11 @@ impl Wiring {
     }
 
     pub(crate) fn ab_wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
-        self.outputs[usize::from(input.into())]
+        self.outputs[usize::from(input.into().to_u8())]
     }
 
     pub(crate) fn ba_wire(&self, input: impl Into<EnigmaAlphabet>) -> EnigmaAlphabet {
-        self.inverts[usize::from(input.into())]
+        self.inverts[usize::from(input.into().to_u8())]
     }
 }
 

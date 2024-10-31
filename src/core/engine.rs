@@ -20,7 +20,7 @@ impl<const N: usize> Enigma<N> {
     where
         I: Into<EnigmaAlphabet>,
     {
-        let input = input.into();
+        let input: EnigmaAlphabet = input.into();
         let x = self.plugboard.encode(input);
         let x = self.rotors[2].encode(x);
         let x = self.rotors[1].encode(x);
@@ -64,41 +64,35 @@ mod tests {
     use super::*;
     use crate::historical_machines::enigma_m3::reflector_b;
     use crate::historical_machines::enigma_m3::rotor_i;
+    use crate::historical_machines::enigma_m3::rotor_ii;
+    use crate::historical_machines::enigma_m3::rotor_iii;
 
-    // #[test]
-    // fn dummy_enigma() {
-    //     // rotor I:   EKMFLGDQVZNTOWYHXUSPAIBRCJ
-    //     // rotor II:  AJDKSIRUXBLHWTMCQGZNPYFVOE
-    //     // rotor III: BDFHJLCPRTXVZNYEIWGAKMUSQO
+    #[test]
+    fn dummy_enigma() {
+        // rotor I:   EKMFLGDQVZNTOWYHXUSPAIBRCJ
+        // rotor II:  AJDKSIRUXBLHWTMCQGZNPYFVOE
+        // rotor III: BDFHJLCPRTXVZNYEIWGAKMUSQO
 
-    //     let mut enigma_m3 = Enigma::new(
-    //         [
-    //             Rotor::new(0, 'R', ROTOR_I),
-    //             Rotor::new(0, 'F', ROTOR_II),
-    //             Rotor::new(0, 'W', ROTOR_III),
-    //         ],
-    //         Reflector::new(REFLECTOR_B),
-    //         Plugboard::<0>::new([]),
-    //     );
+        let mut enigma_m3 = Enigma::new(
+            reflector_b(),
+            [rotor_i(0), rotor_ii(0), rotor_iii(0)],
+            Plugboard::<0>::new([]),
+        );
 
-    //     let input = 'G';
-    //     let output = enigma_m3.encode(input);
-    //     assert_eq!(output, 'P'.into());
+        let input = 'G';
+        let output = enigma_m3.encode(input);
+        assert_eq!(output, 'P'.into());
 
-    //     let mut enigma_m3 = Enigma::new(
-    //         Reflector::new(REFLECTOR_B),
-    //         [
-    //             Rotor::new(0, 'R', ROTOR_I),
-    //             Rotor::new(0, 'F', ROTOR_II),
-    //             Rotor::new(0, 'W', ROTOR_III),
-    //         ],
-    //         Plugboard::<0>::new([]),
-    //     );
+        let mut enigma_m3 = Enigma::new(
+            reflector_b(),
+            [rotor_i(0), rotor_ii(0), rotor_iii(0)],
+            Plugboard::<0>::new([]),
+        );
 
-    //     let input = 'P';
-    //     let output = enigma_m3.encode(input);
-    //     assert_eq!(output, 'G'.into());
-    // }
+        let input = 'P';
+        let output = enigma_m3.encode(input);
+        assert_eq!(output, 'G'.into());
+    }
 
     #[test]
     fn enigma_encode_multiple_steps() {

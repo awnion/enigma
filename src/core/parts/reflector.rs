@@ -49,8 +49,8 @@ mod tests {
     #[test]
     fn test_reflector_from_str() {
         let reflector: Reflector = "BADCFEHGJILKNMPORQTSVUXWZY".into();
-        let encoded = reflector.encode(b'A');
-        assert_eq!(encoded, 'B'.into());
+        let encoded = reflector.encode('A');
+        assert_eq!(encoded, EnigmaAlphabet::from('B'));
     }
 
     #[test]

@@ -84,9 +84,19 @@ mod tests {
 
     #[test]
     fn test_rotor() {
-        let rotor = Rotor::new("BCDEFGHIJKLMNOPQRSTUVWXYZA", "A".chars().map(Into::into));
+        let mut rotor = Rotor::new("BCDEFGHIJKLMNOPQRSTUVWXYZA", "A".chars().map(Into::into));
         let encoded = rotor.encode('A');
         assert_eq!(encoded, 'B'.into());
+
+        rotor.turn();
+
+        let encoded = rotor.encode('A');
+        assert_eq!(encoded, 'B'.into());
+
+        rotor.turn();
+
+        let decoded = rotor.decode('B');
+        assert_eq!(decoded, 'A'.into());
     }
 
     #[test]
@@ -104,6 +114,6 @@ mod tests {
             ],
             "A".chars().map(Into::into),
         );
-        assert_eq!(rotor.position, b'A'.into());
+        assert_eq!(rotor.position, 'A'.into());
     }
 }

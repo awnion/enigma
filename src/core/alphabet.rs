@@ -58,14 +58,17 @@ impl From<&u8> for EnigmaAlphabet {
 
 impl From<u8> for EnigmaAlphabet {
     fn from(value: u8) -> Self {
-        value.into()
+        match value {
+            0..=25 => EnigmaAlphabet(value),
+            _ => panic!("Invalid letter value: {}", value),
+        }
     }
 }
 
 impl From<&u32> for EnigmaAlphabet {
     fn from(value: &u32) -> Self {
         match value {
-            0..=25 => value.into(),
+            0..=25 => EnigmaAlphabet(*value as u8),
             _ => panic!("Invalid letter value: {}", value),
         }
     }
@@ -74,7 +77,7 @@ impl From<&u32> for EnigmaAlphabet {
 impl From<i32> for EnigmaAlphabet {
     fn from(value: i32) -> Self {
         match value {
-            0..=25 => (value as u8).into(),
+            0..=25 => EnigmaAlphabet(value as u8),
             _ => panic!("Invalid letter value: {}", value),
         }
     }
@@ -107,12 +110,30 @@ impl Sub<u8> for EnigmaAlphabet {
     type Output = Self;
 
     fn sub(self, rhs: u8) -> Self::Output {
-        (self.0 as i32).sub(rhs as i32).rem(26).into()
+        let v = (self.0 as i32).sub(rhs as i32).rem_euclid(26);
+        assert!(v >= 0, "Rem value is negative");
+        v.into()
     }
 }
 
 impl SubAssign<u8> for EnigmaAlphabet {
     fn sub_assign(&mut self, rhs: u8) {
         *self = *self - rhs
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_enigma_alphabet() {
+        let a = EnigmaAlphabet::from('A');
+        assert_eq!(a.to_u8(), 0);
+        assert_eq!(a.to_char(), 'A');
+
+        let b: EnigmaAlphabet = 1u8.into();
+        assert_eq!(b.to_u8(), 1);
+        assert_eq!(b.to_char(), 'B');
     }
 }
