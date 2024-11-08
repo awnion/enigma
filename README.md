@@ -12,5 +12,5 @@ From [Cryptomuseum](https://www.cryptomuseum.com/crypto/enigma/wiring.htm)
 
 ## TODO
 
-[ ] Implement DX friendly interface
-[ ] TUI
+- [ ] Implement DX friendly interface
+- [ ] TUI
